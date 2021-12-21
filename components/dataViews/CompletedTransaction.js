@@ -14,6 +14,7 @@ export default ({ transactionHash }) => (
     <Button
       href={`https://www.mintscan.io/osmosis/txs/${transactionHash}`}
       label=" View on Mintscan"
+      target='#'
     ></Button>
     <style jsx>{`
       .confirmation {

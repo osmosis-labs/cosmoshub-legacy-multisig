@@ -50,13 +50,13 @@ const JsonCosmosTransaction = (props) => {
   return (
 
     <StackableContainer lessPadding fullHeight>
-      {showCreate ? (  
+      {/* {showCreate ? (  
          <StackableContainer lessPadding fullHeight>
           <Button label="Get Transaction" onClick={() => {
                     setShowTxForm(true);
                     setShowCreate(false);
                   }} />
-         </StackableContainer>) : null  }
+         </StackableContainer>) : null  } */}
       { showTxForm ? (
       <div>
         <div className="hash-view">
