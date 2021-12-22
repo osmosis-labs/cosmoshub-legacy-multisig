@@ -5,6 +5,7 @@ const Button = (props) => (
         className={props.primary ? "primary button" : "button"}
         href={props.href}
         disabled={props.disabled}
+        target="_blank"
       >
         {props.label}
       </a>

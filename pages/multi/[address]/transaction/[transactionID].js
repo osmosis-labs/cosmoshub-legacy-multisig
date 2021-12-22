@@ -133,7 +133,7 @@ const transactionPage = ({
         ) : (
           <div></div>
         )}
-        <JsonCosmosTransaction tx={txInfo} />
+        
         {!transactionHash && (
           <ThresholdInfo
             signatures={currentSignatures}
