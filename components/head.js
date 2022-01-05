@@ -1,8 +1,9 @@
 import NextHead from "next/head";
 import { string } from "prop-types";
+import util from "util";
 
 const defaultDescription =
-  "*:;;;:*:;;;:**:;;;:*:;;;:*OSMOSIS MULTISIGN*:;;;:*:;;;:**:;;;:*:;;;:*";
+  util.format("*:;;;:*:;;;:**:;;;:*:;;;:*%s MULTISIGN*:;;;:*:;;;:**:;;;:*:;;;:*", process.env.NEXT_PUBLIC_CHAIN_NAME.toUpperCase());
 const defaultOGURL = "";
 const defaultOGImage = "";
 

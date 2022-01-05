@@ -12,8 +12,8 @@ export default ({ transactionHash }) => (
       </div>
     </StackableContainer>
     <Button
-      href={`https://www.mintscan.io/osmosis/txs/${transactionHash}`}
-      label=" View on Mintscan"
+      href={`${process.env.NEXT_PUBLIC_CHAIN_EXPLORER}${transactionHash}`}
+      label="View on Mintscan"
     ></Button>
     <style jsx>{`
       .confirmation {

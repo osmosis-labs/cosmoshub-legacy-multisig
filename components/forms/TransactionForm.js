@@ -6,6 +6,7 @@ import { withRouter } from "next/router";
 import Button from "../../components/inputs/Button";
 import Input from "../../components/inputs/Input";
 import StackableContainer from "../layout/StackableContainer";
+import {checkAddressOsmoValid} from "../../lib/txCheck";
 
 class TransactionForm extends React.Component {
   constructor(props) {
@@ -72,7 +73,7 @@ class TransactionForm extends React.Component {
       return null;
     }
 
-    if (this.state.toAddress.length === 43) {
+    if (checkAddressOsmoValid(this.state.toAddress)) {
       this.setState({ processing: true });
       const tx = this.createTransaction(
         this.state.toAddress,
@@ -87,7 +88,7 @@ class TransactionForm extends React.Component {
         `${this.props.address}/transaction/${transactionID}`
       );
     } else {
-      this.setState({ addressError: "Use a valid osmosis address" });
+      this.setState({ addressError: util.format("Invalid %s address format", process.env.NEXT_PUBLIC_CHAIN_NAME.toLowerCase()) });
     }
   };
 

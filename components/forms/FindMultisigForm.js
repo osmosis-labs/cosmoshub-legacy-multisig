@@ -6,6 +6,7 @@ import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
 import Input from "../inputs/Input";
 import {checkAddressOsmoValid} from "../../lib/txCheck";
+import util from "util";
 
 class FindMultisigForm extends React.Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class FindMultisigForm extends React.Component {
 
     //basic check
     if(!checkAddressOsmoValid(this.state.address)){
-      window.alert("Invalid osmosis address format");
+      window.alert(util.format("Invalid %s address format", process.env.NEXT_PUBLIC_CHAIN_NAME.toLowerCase()));
       this.state.address = "";
       this.setState({ processing: false });
       return null;
