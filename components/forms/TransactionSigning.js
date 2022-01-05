@@ -71,6 +71,7 @@ export default class TransactionSigning extends React.Component {
         sign: {
           preferNoSetMemo: true,
           preferNoSetFee: true,
+          disableBalanceCheck: true,
         },
       };
       const offlineSigner = window.getOfflineSignerOnlyAmino(

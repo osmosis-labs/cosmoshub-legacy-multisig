@@ -10,7 +10,7 @@ import StackableContainer from "../layout/StackableContainer";
 import ThresholdInput from "../inputs/ThresholdInput";
 
 let emptyPubKeyGroup = () => {
-  return { address: "", compressedPubkey: "", keyError: "" };
+  return { address: "", compressedPubkey: "", keyError: "", isPubkey: false };
 };
 
 class MultiSigForm extends React.Component {
@@ -20,7 +20,7 @@ class MultiSigForm extends React.Component {
     this.state = {
       pubkeys: [emptyPubKeyGroup(), emptyPubKeyGroup()],
       threshold: 2,
-      processing: false,
+      processing : false
     };
   }
 
@@ -70,45 +70,63 @@ class MultiSigForm extends React.Component {
   };
 
   handleKeyBlur = async (index, e) => {
-    let address = e.target.value;
-    if (address.length > 0) {
-      try {
-        // let compressedPubkey = e.target.value;
-        // if (compressedPubkey.length !== 44) {
-        //   throw new Error("Invalid Secp256k1 pubkey");
-        // }
-
-        console.log("address = " + address)
-
-        const pubkey = await this.getPubkeyFromNode(address);
-        const { pubkeys } = this.state;
-        pubkeys[index].compressedPubkey = pubkey;
-        pubkeys[index].keyError = "";
-        this.setState({ pubkeys });
-      } catch (error) {
-        console.log(error);
-        const { pubkeys } = this.state;
-        pubkeys[index].keyError = error.message;
-        this.setState({ pubkeys });
+    console.log("handleKeyBlur")
+    try {
+      const { pubkeys } = this.state;
+      let pubkey;
+      // use pubkey
+      console.log(pubkeys[index]);
+      if (pubkeys[index].isPubkey) {
+        pubkey = e.target.value;
+        if (pubkey.length !== 44) {
+          throw new Error("Invalid Secp256k1 pubkey");
+        }
+      } else {
+        // use address to fetch pubkey
+        let address = e.target.value;
+        if (address.length > 0) {
+          pubkey = await this.getPubkeyFromNode(address);
+        }
       }
+
+      pubkeys[index].compressedPubkey = pubkey;
+      pubkeys[index].keyError = "";
+      this.setState({ pubkeys });
+    } catch (error) {
+      console.log(error);
+      const { pubkeys } = this.state;
+      pubkeys[index].keyError = error.message;
+      this.setState({ pubkeys });
     }
   };
 
   handleCreate = async () => {
-    const compressedPubkeys = this.state.pubkeys.map(
+    if(this.state.processing){
+      console.log("the last create order is being processed. Pls wait.")
+      return
+    }
+    
+    // wait for all keys to be retrieved
+    let compressedPubkeys = this.state.pubkeys.map(
       (item) => item.compressedPubkey
     );
+    let retryTime = 3
+    while(compressedPubkeys.includes('') && retryTime > 0){
+      console.log("waiting")
+      await (new Promise(resolve => setTimeout(resolve, 1000)));
 
-    if (this.state.processing == true) {
-      console.log("loading")
-      window.alert("Processing");
+      // try again retrieval
+      compressedPubkeys = this.state.pubkeys.map(
+        (item) => item.compressedPubkey
+      );
+      retryTime--;
     }
 
-    if(compressedPubkeys.includes('')){
-      window.alert("Please wait for all query in chain")
+    if(retryTime == 0){
+      window.alert("fail to retrieve key")
+      this.setState({processing : false});
+      return 
     }
-
-    this.setState({ processing: true });
 
     let multisigAddress;
     try {
@@ -120,7 +138,15 @@ class MultiSigForm extends React.Component {
     } catch (error) {
       window.alert("Failed to creat multisig");
       console.log("Failed to creat multisig: ", error);
+    } finally {
+      this.setState({processing : false});
     }
+  };
+
+  togglePubkey = (index) => {
+    const { pubkeys } = this.state;
+    pubkeys[index].isPubkey = !pubkeys[index].isPubkey;
+    this.setState({ pubkeys });
   };
 
   render() {
@@ -148,16 +174,34 @@ class MultiSigForm extends React.Component {
                     onChange={(e) => {
                       this.handleKeyGroupChange(index, e);
                     }}
-                    value={pubkeyGroup.address}
-                    label="Address"
-                    name="address"
+                    value={
+                      pubkeyGroup.isPubkey
+                        ? pubkeyGroup.compressedPubkey
+                        : pubkeyGroup.address
+                    }
+                    label={
+                      pubkeyGroup.isPubkey
+                        ? "Public Key (Secp256k1)"
+                        : "Address"
+                    }
+                    name={pubkeyGroup.isPubkey ? "compressedPubkey" : "address"}
                     width="100%"
-                    placeholder="osmo1ya403hmh5ehj2qp6uf0pa672ynjguc7aea4mpk"
+                    placeholder={
+                      pubkeyGroup.isPubkey
+                      ? "Akd/qKMWdZXyiMnSu6aFLpQEGDO0ijyal9mXUIcVaPNX"
+                      : "osmo1ya403hmh5ehj2qp6uf0pa672ynjguc7aea4mpk"
+                    }
                     error={pubkeyGroup.keyError}
                     onBlur={(e) => {
                       this.handleKeyBlur(index, e);
                     }}
                   />
+                  <button
+                    className="toggle-type"
+                    onClick={() => this.togglePubkey(index)}
+                  >
+                    Use {pubkeyGroup.isPubkey ? "Address" : "Public Key"}
+                  </button>
                 </div>
               </div>
             </StackableContainer>
@@ -186,6 +230,8 @@ class MultiSigForm extends React.Component {
         <style jsx>{`
           .key-inputs {
             display: flex;
+            flex-direction: column;
+            align-items: end;
             justify-content: space-between;
             max-width: 350px;
           }
@@ -214,6 +260,15 @@ class MultiSigForm extends React.Component {
           }
           p:first-child {
             margin-top: 0;
+          }
+          .toggle-type {
+            margin-top: 10px;
+            font-size: 12px;
+            font-style: italic;
+            border: none;
+            background: none;
+            color: white;
+            text-decoration: underline;
           }
         `}</style>
       </>

@@ -14,6 +14,7 @@ export default ({ transactionHash }) => (
     <Button
       href={`${process.env.NEXT_PUBLIC_CHAIN_EXPLORER}${transactionHash}`}
       label="View transaction"
+      target='#'
     ></Button>
     <style jsx>{`
       .confirmation {
