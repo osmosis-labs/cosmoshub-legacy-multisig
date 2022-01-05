@@ -13,7 +13,7 @@ export default ({ transactionHash }) => (
     </StackableContainer>
     <Button
       href={`${process.env.NEXT_PUBLIC_CHAIN_EXPLORER}${transactionHash}`}
-      label="View on Mintscan"
+      label="View transaction"
     ></Button>
     <style jsx>{`
       .confirmation {
